@@ -10,7 +10,7 @@ int main() {
 
     // Solicitar al usuario que ingrese la edad
     printf("Ingresa tu edad: ");
-    scanf("%d", &edad);
+    scanf("%d", &edad); // se usa & para indicar la dirección de memoria de la variable donde se almacenará el valor ingresado por el usuario 
 
     // Imprimir el nombre y la edad
     printf("Su nombre es: %s\n", nombre);
