@@ -64,6 +64,18 @@ Lista *eliminar_elemento_de_lista(Lista *l, int v){
     return l;
 }
 
+int obtener_longitud_de_Lista(Lista *l) {
+    int contador = 0;
+    Lista *temp = l;
+
+    while (temp != NULL) {
+        contador++;
+        temp = temp->siguiente;
+    }
+
+    return contador;
+}
+
 int main() {
     Lista *lista = crear_lista(); 
 
@@ -77,7 +89,10 @@ int main() {
     imprimir_lista(lista);
 	printf("\n");
 
-    
+    int longitud = obtener_longitud_de_Lista(lista);
+    printf("La longitud de la lista es: %d\n", longitud);
+    printf("\n");
+
     if (lista_es_vacia(lista)) {
         printf("La lista esta vacia.\n");
     } else {
