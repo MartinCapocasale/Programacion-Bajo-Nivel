@@ -49,13 +49,12 @@ Lista *obtener_elemento_de_lista(int elemento, Lista *l)
 Lista *eliminar_elemento_de_lista(Lista *l, int v){
     Lista *ant = NULL;
     Lista *p = l;
-    while (p->info != v)
-    {
-        if (p == NULL)
-            return l;
+    while (p != NULL && p->info != v){
         ant = p;
         p = p->siguiente;
     }
+    if (p == NULL)
+        return l;
     if (ant == NULL)
         l = p->siguiente;
     else
