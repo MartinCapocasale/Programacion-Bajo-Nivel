@@ -75,6 +75,29 @@ int obtener_longitud_de_Lista(Lista *l) {
     return contador;
 }
 
+Lista *insertar_elemento_ordenado(Lista *l, int v){
+    Lista *nuevo = (Lista *)malloc(sizeof(Lista));
+    if (nuevo == NULL) {
+        printf("Memória insuficiente");
+        exit(1);
+    }
+    nuevo->info = v;
+    //Si la lista está vacía o el nuevo valor debe ir al inicio
+    if (l == NULL || l->info >= v) {
+        nuevo->siguiente = l;
+        return nuevo;
+    }
+    //Buscar el lugar correcto para el nuevo elemento
+    Lista *actual = l;
+    while (actual->siguiente != NULL && actual->siguiente->info < v) {
+        actual = actual->siguiente;
+    }
+    //Insertar el nuevo elemento
+    nuevo->siguiente = actual->siguiente;
+    actual->siguiente = nuevo;
+    return l;
+}
+
 int main() {
     Lista *lista = crear_lista(); 
 
@@ -112,6 +135,20 @@ int main() {
     printf("Se elimina elemento de la lista %d:\n", 17);
     imprimir_lista(lista);
 	printf("\n");
+
+    Lista *lista2 = crear_lista(); 
+
+    lista2 = insertar_elemento_ordenado(lista2, 3);
+    lista2 = insertar_elemento_ordenado(lista2, 20);
+    lista2 = insertar_elemento_ordenado(lista2, 91);
+    lista2 = insertar_elemento_ordenado(lista2, 12);
+
+    printf("Se insertan elementos en la lista ordenada:\n");
+    imprimir_lista(lista2);
+    printf("\n");
+
+
+
 
     return 0; 
 }
