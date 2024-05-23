@@ -115,6 +115,26 @@ void modificar_materia(sistema *sistema, char *nombre, char *nuevo_nombre, int n
     printf("Modificacion fallida: La materia %s no fue encontrada.\n", nombre);
 }
 
+void eliminar_materia(sistema *sistema, char *nombre) {
+    materia *actual = sistema->materias;
+    materia *anterior = NULL;
+    while (actual != NULL) {
+        if (strcasecmp(actual->nombre, nombre) == 0) {
+            if (anterior == NULL) {
+                sistema->materias = actual->siguiente;
+            } else {
+                anterior->siguiente = actual->siguiente;
+            }
+            free(actual);
+            printf("Eliminacion exitosa: La Materia %s fue eliminada.\n", nombre);
+            return;
+        }
+        anterior = actual;
+        actual = actual->siguiente;
+    }
+    printf("Eliminacion fallida: La Materia %s no fue encontrada.\n", nombre);
+}
+
 
 int main() {
     sistema *sistema = crear_sistema();
@@ -183,6 +203,16 @@ int main() {
     printf("\nProbar minusculas:\n");
     printf("\nModificando materia geografia por Historia con nuevo codigo 2002 y cupo 35:\n");
     modificar_materia(sistema, "geografia", "Historia", 1002, 15);
+    listar_materias(sistema);
+
+    printf("-------------------------------------------------------------\n"); 
+
+    printf("\nEliminando materia Historia:\n");
+    eliminar_materia(sistema, "Historia");
+    listar_materias(sistema);
+
+    printf("\nIntentando eliminar materia Dibujo:\n");
+    eliminar_materia(sistema, "Dibujo");
     listar_materias(sistema);
 
     return 0;
