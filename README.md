@@ -7,7 +7,8 @@ Trabajo Practico Final
     -Martin Capocasale
 
 -Puntos implentados:
-    -
+    -Dar de alta, modificar, eliminar y listar estudiantes
+    -Dar de alta, modificar, eliminar y listar materias
 
 -Puntos extras agregados:
     -
