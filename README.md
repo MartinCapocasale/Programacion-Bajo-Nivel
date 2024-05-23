@@ -1,2 +1,13 @@
 # Programacion-Bajo-Nivel
-Repo para la programacion de bajo nivel en C
+Trabajo Practico Final 
+
+-Integrantes
+    -Nicolas Cesarini
+    -Rodrigo Livolsi
+    -Martin Capocasale
+
+-Puntos implentados:
+    -
+
+-Puntos extras agregados:
+    -
