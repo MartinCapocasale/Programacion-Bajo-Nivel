@@ -39,15 +39,19 @@ void agregar_estudiante(sistema *sistema, char *nombre,char *apellido, int edad)
     sistema->estudiantes = nuevo;
 }
 
-void modificar_estudiante(sistema *sistema, char *nombre,char *apellido, int edad) {
+void modificar_estudiante(sistema *sistema, char *nombre, char *apellido, char *nuevo_nombre, char *nuevo_apellido, int edad) {
     estudiante *actual = sistema->estudiantes;
     while (actual != NULL) {
-        if (strcmp(actual->nombre, nombre) == 0 && strcmp(actual->apellido, apellido) == 0) {
+        if (strcasecmp(actual->nombre, nombre) == 0 && strcasecmp(actual->apellido, apellido) == 0) {
+            strcpy(actual->nombre, nuevo_nombre);
+            strcpy(actual->apellido, nuevo_apellido);
             actual->edad = edad;
-            break;
+            printf("Modificacion exitosa: El Estudiante %s %s ahora se llama %s %s y tiene %d anios.\n", nombre, apellido, nuevo_nombre, nuevo_apellido, edad);
+            return;
         }
         actual = actual->siguiente;
     }
+    printf("Modificacion fallida: El Estudiante %s %s no fue encontrado.\n", nombre, apellido);
 }
 
 void eliminar_estudiante(sistema *sistema, char *nombre, char *apellido) {
@@ -92,29 +96,31 @@ int main() {
 
     printf("-------------------------------------------------------------\n");
 
-    printf("\nModificando edad de Juan Perez a 18 anios:\n");
-    modificar_estudiante(sistema, "Juan", "Perez", 18);
-
-    printf("Lista de estudiantes:\n");
+    printf("\nModificando a Juan Perez por Pablo Perez y modificando la edad a 23 anios:\n");
+    modificar_estudiante(sistema, "Juan", "Perez", "Pablo", "Perez", 23);
+    listar_estudiantes(sistema);
+    
+    printf("\nIntentando modificar a Maria Gonzalez por Maria Lopez y modificando la edad a 21 anios:\n");
+    modificar_estudiante(sistema, "Maria", "Gonzalez", "Maria", "Lopez", 21);
     listar_estudiantes(sistema);
 
     printf("-------------------------------------------------------------\n");
 
-    printf("\nEliminando a Juan Perez:\n");
-    eliminar_estudiante(sistema, "Juan", "Perez");
+    printf("\nEliminando a Pablo Perez:\n");
+    eliminar_estudiante(sistema, "Pablo", "Perez");
 
     printf("Lista de estudiantes:\n");
     listar_estudiantes(sistema);
 
     
-    printf("\nIntentando eliminar a Maria Lopez:\n");
+    printf("\nIntentando eliminar a Maria Gonzalez:\n");
     eliminar_estudiante(sistema, "Maria", "Gonzalez");
 
     printf("Lista de estudiantes:\n");
     listar_estudiantes(sistema);
 
     printf("-------------------------------------------------------------\n");
-    
+
     printf("\nProbar minusculas:\n");
     printf("\nIntentando eliminar a martin gomez:\n");
     eliminar_estudiante(sistema, "martin", "Gomez");
