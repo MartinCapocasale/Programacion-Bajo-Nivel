@@ -49,6 +49,23 @@ void modificar_estudiante(sistema *sistema, char *nombre,char *apellido, int eda
     }
 }
 
+void eliminar_estudiante(sistema *sistema, char *nombre,char *apellido) {
+    estudiante *actual = sistema->estudiantes;
+    estudiante *anterior = NULL;
+    while (actual != NULL) {
+        if (strcmp(actual->nombre, nombre) == 0 && strcmp(actual->apellido, apellido) == 0){
+            if (anterior == NULL) {
+                sistema->estudiantes = actual->siguiente;
+            } else {
+                anterior->siguiente = actual->siguiente;
+            }
+            free(actual);
+            break;
+        }
+        anterior = actual;
+        actual = actual->siguiente;
+    }
+}
 
 void listar_estudiantes(sistema *sistema) {
     estudiante *actual = sistema->estudiantes;
@@ -71,6 +88,10 @@ int main() {
 
     printf("\nModificando edad de Juan Perez a 18 anios:\n");
     modificar_estudiante(sistema, "Juan", "Perez", 18);
+    listar_estudiantes(sistema);
+
+    printf("\nEliminando a Juan Perez:\n");
+    eliminar_estudiante(sistema, "Juan", "Perez");
     listar_estudiantes(sistema);
 
     return 0;
