@@ -83,6 +83,23 @@ void listar_estudiantes(sistema *sistema) {
     }
 }
 
+void agregar_materia(sistema *sistema, char *nombre, int codigo, int cupo) {
+    materia *nueva = malloc(sizeof(materia));
+    strcpy(nueva->nombre, nombre);
+    nueva->codigo = codigo;
+    nueva->cupo = cupo;
+    nueva->siguiente = sistema->materias;
+    sistema->materias = nueva;
+}
+
+void listar_materias(sistema *sistema) {
+    materia *actual = sistema->materias;
+    while (actual != NULL) {
+        printf("%s,%d,%d\n", actual->nombre, actual->codigo, actual->cupo);
+        actual = actual->siguiente;
+    }
+}
+
 
 int main() {
     sistema *sistema = crear_sistema();
@@ -129,6 +146,15 @@ int main() {
     listar_estudiantes(sistema);
 
     printf("-------------------------------------------------------------\n");
+
+    printf("\nProbar Agregar materias:\n");
+    agregar_materia(sistema, "Matematica", 1001, 30);
+    agregar_materia(sistema, "Historia", 1002, 25);
+    agregar_materia(sistema, "Geografia", 1003, 20);
+    
+    printf("Lista de materias:\n");
+    listar_materias(sistema);
+
 
     return 0;
 }
