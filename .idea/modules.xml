@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/.idea/Programacion-Bajo-Nivel-Grupo-C-Pico.iml" filepath="$PROJECT_DIR$/.idea/Programacion-Bajo-Nivel-Grupo-C-Pico.iml" />
+=======
+>>>>>>> trabajo-practico-final
       <module fileurl="file://$PROJECT_DIR$/.idea/Programación Bajo Nivel.iml" filepath="$PROJECT_DIR$/.idea/Programación Bajo Nivel.iml" />
     </modules>
   </component>
