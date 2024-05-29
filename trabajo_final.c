@@ -194,6 +194,37 @@ void eliminar_materia(sistema *sistema, char *nombre) {
     printf("Eliminacion fallida: La Materia %s no fue encontrada.\n", nombre);
 }
 
+void buscar_estudiantes_por_rango_edad(sistema *sistema, int edad_min, int edad_max) {
+    estudiante *actual = sistema->estudiantes;
+    printf("Estudiantes en el rango de edad %d - %d:\n", edad_min, edad_max);
+    while (actual != NULL) {
+        if (actual->edad >= edad_min && actual->edad <= edad_max) {
+            printf("%s, %s, %d\n", actual->nombre, actual->apellido, actual->edad);
+        }
+        actual = actual->siguiente;
+    }
+}
+
+void liberar_memoria_estudiantes(estudiante *estudiantes) {
+    while (estudiantes != NULL) {
+        estudiante *temp = estudiantes;
+        estudiantes = estudiantes->siguiente;
+        while (temp->materias_alumno != NULL) {
+            materias_alumno *temp_mat = temp->materias_alumno;
+            temp->materias_alumno = temp->materias_alumno->siguiente;
+            free(temp_mat);
+        }
+        free(temp);
+    }
+}
+
+void liberar_memoria_materias(materia *materias) {
+    while (materias != NULL) {
+        materia *temp = materias;
+        materias = materias->siguiente;
+        free(temp);
+    }
+}
 
 int main() {
     sistema *sistema = crear_sistema();
@@ -278,6 +309,15 @@ int main() {
     cursar_materia(sistema, "Jose", "Rodriguez", 2022);
     cursar_materia(sistema, "Jose", "Rodriguez", 2028);
     cursar_materia(sistema, "Jose", "Rodriguez", 2032);
+
+    printf("-------------------------------------------------------------\n");
+
+    printf("\nBuscando estudiantes por rango de edad 20 - 22:\n");
+    buscar_estudiantes_por_rango_edad(sistema, 20, 22);
+
+    liberar_memoria_estudiantes(sistema->estudiantes);
+    liberar_memoria_materias(sistema->materias);
+    free(sistema);
 
     return 0;
 }
