@@ -3,11 +3,16 @@
 #include <string.h>
 #include <strings.h>
 
+typedef struct materias_alumno {
+    int codigo_materia;
+    struct materias_alumno *siguiente;
+} materias_alumno;
 
 typedef struct estudiante {
     char nombre[50];
     char apellido[50];
     int edad;
+    materias_alumno *materias_alumno;
     struct estudiante *siguiente;
 } estudiante;
 
@@ -35,6 +40,7 @@ void agregar_estudiante(sistema *sistema, char *nombre,char *apellido, int edad)
     strcpy(nuevo->nombre, nombre);
     strcpy(nuevo->apellido, apellido);
     nuevo->edad = edad;
+    nuevo->materias_alumno = NULL;
     nuevo->siguiente = sistema->estudiantes;
     sistema->estudiantes = nuevo;
 }
@@ -52,6 +58,29 @@ void modificar_estudiante(sistema *sistema, char *nombre, char *apellido, char *
         actual = actual->siguiente;
     }
     printf("Modificacion fallida: El Estudiante %s %s no fue encontrado.\n", nombre, apellido);
+}
+
+void listar_codigo_materias_cursadas(estudiante *estudiante) {
+    materias_alumno *actual = estudiante->materias_alumno;
+    while (actual != NULL) {
+        printf("%s %s está cursando = %d\n", estudiante->nombre, estudiante->apellido, actual->codigo_materia);
+        actual = actual->siguiente;
+    }
+}
+
+void cursar_materia(sistema *sistema, char *nombre, char *apellido, int codigo_materia) {
+    estudiante *actual = sistema->estudiantes;
+    while (actual != NULL) {
+        if (strcasecmp(actual->nombre, nombre) == 0 && strcasecmp(actual->apellido, apellido) == 0) {
+            materias_alumno *nueva = malloc(sizeof(materias_alumno));
+            nueva->codigo_materia = codigo_materia;
+            nueva->siguiente = sistema->estudiantes->materias_alumno;
+            sistema->estudiantes->materias_alumno = nueva;
+            listar_codigo_materias_cursadas(actual);
+            return;
+        }
+        actual = actual->siguiente;
+    }
 }
 
 void eliminar_estudiante(sistema *sistema, char *nombre, char *apellido) {
@@ -82,6 +111,36 @@ void listar_estudiantes(sistema *sistema) {
         actual = actual->siguiente;
     }
 }
+
+void listar_estudiantes_por_nombre(estudiante *estudiantes) {
+    estudiante *actual = estudiantes;
+    while (actual != NULL) {
+        printf("%s,%s,%d\n", actual->nombre,actual->apellido, actual->edad);
+        actual = actual->siguiente;
+    }
+}
+
+estudiante estudiante_por_nombre(sistema *sistema, char *nombre){
+    estudiante *actual = sistema->estudiantes;
+    estudiante *lista = NULL;
+    while (actual != NULL) {
+        if (strcasecmp(actual->nombre, nombre) == 0) {
+            estudiante *nuevo = malloc(sizeof(estudiante));
+            strcpy(nuevo->nombre, actual->nombre);
+            strcpy(nuevo->apellido, actual->apellido);
+            nuevo->edad = actual->edad;
+            nuevo->materias_alumno = actual->materias_alumno;
+            nuevo->siguiente = lista;
+            lista = nuevo;
+        }
+        actual = actual->siguiente;
+    }
+    listar_estudiantes_por_nombre(lista);
+    return *lista;
+}
+
+
+
 
 void agregar_materia(sistema *sistema, char *nombre, int codigo, int cupo) {
     materia *nueva = malloc(sizeof(materia));
@@ -139,9 +198,9 @@ void eliminar_materia(sistema *sistema, char *nombre) {
 int main() {
     sistema *sistema = crear_sistema();
     
-    agregar_estudiante(sistema, "Martin", "Gomez", 20);
+    agregar_estudiante(sistema, "Jose", "Gomez", 20);
     agregar_estudiante(sistema, "Juan", "Perez", 22);
-    agregar_estudiante(sistema, "Pedro", "Rodriguez", 19);
+    agregar_estudiante(sistema, "Jose", "Rodriguez", 19);
     
     printf("Lista de estudiantes:\n");
     listar_estudiantes(sistema);
@@ -214,6 +273,11 @@ int main() {
     printf("\nIntentando eliminar materia Dibujo:\n");
     eliminar_materia(sistema, "Dibujo");
     listar_materias(sistema);
+
+    estudiante_por_nombre(sistema, "Jose");
+    cursar_materia(sistema, "Jose", "Rodriguez", 2022);
+    cursar_materia(sistema, "Jose", "Rodriguez", 2028);
+    cursar_materia(sistema, "Jose", "Rodriguez", 2032);
 
     return 0;
 }

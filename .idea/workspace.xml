@@ -18,7 +18,11 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fd6a29a7-1db2-4e9c-b259-52633764143c" name="Changes" comment="" />
+    <list default="true" id="747a9ca0-bc04-4995-be5b-a8b2a6988aa8" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trabajo_final.c" beforeDir="false" afterPath="$PROJECT_DIR$/trabajo_final.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trabajo_final.exe" beforeDir="false" afterPath="$PROJECT_DIR$/trabajo_final.exe" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -50,26 +54,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "C/C++ File.implementacion-linked-list.c.executor": "Run",
-    "C/C++ File.prueba1.c.executor": "Run",
-    "C/C++ File.trabajo_final.c.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "desarrollo",
-    "last_opened_file_path": "E:/Bibliotecas/Escritorio Argentina Programa/Programación Bajo Nivel",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;C/C++ File.implementacion-linked-list.c.executor&quot;: &quot;Run&quot;,
+    &quot;C/C++ File.prueba1.c.executor&quot;: &quot;Run&quot;,
+    &quot;C/C++ File.trabajo_final.c.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;trabajo-practico-final&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/Bibliotecas/Escritorio Argentina Programa/Programación Bajo Nivel&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="C/C++ File.trabajo_final.c">
     <configuration name="implementacion-linked-list.c" type="CppFileRunConfiguration" factoryName="CppFileRunConfiguration" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Programacion-Bajo-Nivel-Grupo-C-Pico" TARGET_NAME="implementacion-linked-list.c" CONFIG_NAME="implementacion-linked-list.c">
       <option name="sourceFile" value="Cesarini-ejercicios\implementacion-linked-list.c" />
@@ -100,7 +104,7 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="fd6a29a7-1db2-4e9c-b259-52633764143c" name="Changes" comment="" />
+      <changelist id="747a9ca0-bc04-4995-be5b-a8b2a6988aa8" name="Changes" comment="" />
       <created>1715728717069</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -114,6 +118,9 @@
       <workItem from="1716244134137" duration="4304000" />
       <workItem from="1716605239506" duration="23000" />
       <workItem from="1716647508537" duration="1941000" />
+      <workItem from="1716754924585" duration="5275000" />
+      <workItem from="1716924018467" duration="1815000" />
+      <workItem from="1716934067193" duration="6598000" />
     </task>
     <servers />
   </component>
