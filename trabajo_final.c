@@ -2,17 +2,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <stdbool.h>
 
 typedef struct materias_alumno {
     int codigo_materia;
     struct materias_alumno *siguiente;
 } materias_alumno;
 
+typedef struct materias_aprobadas {
+    int codigo_materia;
+    struct materias_aprobadas *siguiente;
+} materias_aprobadas;
+
 typedef struct estudiante {
     char nombre[50];
     char apellido[50];
     int edad;
     materias_alumno *materias_alumno;
+    materias_aprobadas *materias_aprobadas;
     struct estudiante *siguiente;
 } estudiante;
 
@@ -41,6 +48,7 @@ void agregar_estudiante(sistema *sistema, char *nombre,char *apellido, int edad)
     strcpy(nuevo->apellido, apellido);
     nuevo->edad = edad;
     nuevo->materias_alumno = NULL;
+    nuevo->materias_aprobadas = NULL;
     nuevo->siguiente = sistema->estudiantes;
     sistema->estudiantes = nuevo;
 }
@@ -60,10 +68,37 @@ void modificar_estudiante(sistema *sistema, char *nombre, char *apellido, char *
     printf("Modificacion fallida: El Estudiante %s %s no fue encontrado.\n", nombre, apellido);
 }
 
-void listar_codigo_materias_cursadas(estudiante *estudiante) {
+
+
+/*bool verificar_existencia_materia(sistema *sistema, int codigo_materia){
+    materia *actual = sistema->materias;
+    while (actual != NULL){
+        if (actual->codigo == codigo_materia){
+            return true;
+        }
+        actual = actual->siguiente;
+    }
+    return false;
+}*/
+
+
+// Tengo que revisar porque acá tengo que poner un puntero para que funcione (No lo estoy entendiendo)
+materia *materia_por_codigo (sistema *sistema, int codigo_materia){
+    materia *actual = sistema->materias;
+    while (actual != NULL){
+        if (actual->codigo == codigo_materia){
+            return actual;
+        }
+        actual = actual->siguiente;
+    }
+    return actual;
+}
+
+void listar_materias_cursadas(estudiante *estudiante, sistema *sistema) {
     materias_alumno *actual = estudiante->materias_alumno;
     while (actual != NULL) {
-        printf("%s %s está cursando = %d\n", estudiante->nombre, estudiante->apellido, actual->codigo_materia);
+        materia *materia_actual = materia_por_codigo (sistema, actual->codigo_materia);
+        printf("%s %s está cursando la materia %s con el código %d\n", estudiante->nombre, estudiante->apellido, materia_actual->nombre, actual->codigo_materia);
         actual = actual->siguiente;
     }
 }
@@ -72,16 +107,35 @@ void cursar_materia(sistema *sistema, char *nombre, char *apellido, int codigo_m
     estudiante *actual = sistema->estudiantes;
     while (actual != NULL) {
         if (strcasecmp(actual->nombre, nombre) == 0 && strcasecmp(actual->apellido, apellido) == 0) {
+            if(materia_por_codigo(sistema, codigo_materia) == NULL){
+                printf("La matéria con el código %d no existe.\n", codigo_materia);
+                return;
+            }
             materias_alumno *nueva = malloc(sizeof(materias_alumno));
             nueva->codigo_materia = codigo_materia;
             nueva->siguiente = sistema->estudiantes->materias_alumno;
             sistema->estudiantes->materias_alumno = nueva;
-            listar_codigo_materias_cursadas(actual);
+            listar_materias_cursadas(actual, sistema);
             return;
         }
         actual = actual->siguiente;
     }
 }
+
+/*void aprobar_materia(sistema *sistema, char *nombre, char *apellido, int codigo_materia) {
+    estudiante *actual = sistema->estudiantes;
+    while (actual != NULL) {
+        if (strcasecmp(actual->nombre, nombre) == 0 && strcasecmp(actual->apellido, apellido) == 0) {
+            materias_alumno *nueva = malloc(sizeof(materias_alumno));
+            nueva->codigo_materia = codigo_materia;
+            nueva->siguiente = sistema->estudiantes->materias_alumno;
+            sistema->estudiantes->materias_alumno = nueva;
+            listar_codigo_materias_cursadas(actual, sistema);
+            return;
+        }
+        actual = actual->siguiente;
+    }
+}*/
 
 void eliminar_estudiante(sistema *sistema, char *nombre, char *apellido) {
     estudiante *actual = sistema->estudiantes;
@@ -306,8 +360,8 @@ int main() {
     listar_materias(sistema);
 
     estudiante_por_nombre(sistema, "Jose");
-    cursar_materia(sistema, "Jose", "Rodriguez", 2022);
-    cursar_materia(sistema, "Jose", "Rodriguez", 2028);
+    cursar_materia(sistema, "Jose", "Rodriguez", 2002);
+    cursar_materia(sistema, "Jose", "Rodriguez", 1001);
     cursar_materia(sistema, "Jose", "Rodriguez", 2032);
 
     printf("-------------------------------------------------------------\n");
