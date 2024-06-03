@@ -108,14 +108,21 @@ void cursar_materia(sistema *sistema, char *nombre, char *apellido, int codigo_m
     while (actual != NULL) {
         if (strcasecmp(actual->nombre, nombre) == 0 && strcasecmp(actual->apellido, apellido) == 0) {
             if(materia_por_codigo(sistema, codigo_materia) == NULL){
-                printf("La matéria con el código %d no existe.\n", codigo_materia);
+                printf("La materia con el código %d no existe.\n", codigo_materia);
+                return;
+            }
+            materia *materia_a_cursar = materia_por_codigo (sistema, codigo_materia);
+            if (materia_a_cursar->cupo == 0){
+                printf("La materia con %s no tiene cupos disponibles.\n", materia_a_cursar->nombre);
                 return;
             }
             materias_alumno *nueva = malloc(sizeof(materias_alumno));
             nueva->codigo_materia = codigo_materia;
             nueva->siguiente = sistema->estudiantes->materias_alumno;
             sistema->estudiantes->materias_alumno = nueva;
-            listar_materias_cursadas(actual, sistema);
+            materia_a_cursar->cupo -= 1;
+            printf("La materia %s quedo con un cupo de %d\n", materia_a_cursar->nombre, materia_a_cursar->cupo);
+            printf("El estudiante %s %s se ha anotado correctamente a la materia %s con el código %d\n", actual->nombre, actual->apellido, materia_a_cursar->nombre, nueva->codigo_materia);
             return;
         }
         actual = actual->siguiente;
