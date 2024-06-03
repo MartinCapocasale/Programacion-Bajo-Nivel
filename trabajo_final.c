@@ -11,6 +11,7 @@ typedef struct materias_alumno {
 
 typedef struct materias_aprobadas {
     int codigo_materia;
+    int nota_materia;
     struct materias_aprobadas *siguiente;
 } materias_aprobadas;
 
@@ -94,11 +95,42 @@ materia *materia_por_codigo (sistema *sistema, int codigo_materia){
     return actual;
 }
 
+estudiante *estudiante_por_nombre_apellido(sistema *sistema, char *nombre, char *apellido) {
+    estudiante *actual = sistema->estudiantes;
+    while (actual != NULL) {
+        if (strcasecmp(actual->nombre, nombre) == 0 && strcasecmp(actual->apellido, apellido) == 0) {
+            return actual;
+        }
+        actual = actual->siguiente;
+    }
+    return actual;
+}
+
+materias_alumno *materias_cursada(estudiante *estudiantes, int codigo_materia) {
+    materias_alumno *actual = estudiantes->materias_alumno;
+    while (actual != NULL) {
+        if (actual->codigo_materia == codigo_materia) {
+            return actual;
+        }
+        actual = actual->siguiente;
+    }
+    return actual;
+}
+
 void listar_materias_cursadas(estudiante *estudiante, sistema *sistema) {
     materias_alumno *actual = estudiante->materias_alumno;
     while (actual != NULL) {
         materia *materia_actual = materia_por_codigo (sistema, actual->codigo_materia);
         printf("%s %s está cursando la materia %s con el código %d\n", estudiante->nombre, estudiante->apellido, materia_actual->nombre, actual->codigo_materia);
+        actual = actual->siguiente;
+    }
+}
+
+void listar_materias_aprobadas(estudiante *estudiante, sistema *sistema) {
+    materias_aprobadas *actual = estudiante->materias_aprobadas;
+    while (actual != NULL) {
+        materia *materia_actual = materia_por_codigo (sistema, actual->codigo_materia);
+        printf("%s %s tiene aprobada la materia %s con una nota de %d\n", estudiante->nombre, estudiante->apellido, materia_actual->nombre, actual->nota_materia);
         actual = actual->siguiente;
     }
 }
@@ -111,7 +143,12 @@ void cursar_materia(sistema *sistema, char *nombre, char *apellido, int codigo_m
                 printf("La materia con el código %d no existe.\n", codigo_materia);
                 return;
             }
+            materias_alumno *materia_alumno_a_cursar = materias_cursada(actual, codigo_materia);
             materia *materia_a_cursar = materia_por_codigo (sistema, codigo_materia);
+            if (materia_alumno_a_cursar != NULL){
+                printf("El estudiante %s %s ya se encuentra cursando la materia %s con el código %d\n", actual->nombre, actual->apellido, materia_a_cursar->nombre, materia_alumno_a_cursar->codigo_materia);
+                return;
+            }
             if (materia_a_cursar->cupo == 0){
                 printf("La materia con %s no tiene cupos disponibles.\n", materia_a_cursar->nombre);
                 return;
@@ -129,20 +166,62 @@ void cursar_materia(sistema *sistema, char *nombre, char *apellido, int codigo_m
     }
 }
 
-/*void aprobar_materia(sistema *sistema, char *nombre, char *apellido, int codigo_materia) {
-    estudiante *actual = sistema->estudiantes;
+void eliminar_materia_cursada(sistema *sistema, estudiante *estudiante, materias_alumno *materia_alumno, int codigo_materia) {
+    materias_alumno *actual = materia_alumno;
+    materias_alumno *anterior = NULL;
     while (actual != NULL) {
-        if (strcasecmp(actual->nombre, nombre) == 0 && strcasecmp(actual->apellido, apellido) == 0) {
-            materias_alumno *nueva = malloc(sizeof(materias_alumno));
-            nueva->codigo_materia = codigo_materia;
-            nueva->siguiente = sistema->estudiantes->materias_alumno;
-            sistema->estudiantes->materias_alumno = nueva;
-            listar_codigo_materias_cursadas(actual, sistema);
+        if (actual->codigo_materia == codigo_materia) {
+            materia *materia = materia_por_codigo (sistema, codigo_materia);
+            if (anterior == NULL) {
+                actual = actual->siguiente;
+            } else {
+                anterior->siguiente = actual->siguiente;
+            }
+            materia->cupo += 1;
+            free(actual);
+            printf("Eliminacion exitosa: El alumno %s %s dejo de cursar la materia %s.\n", estudiante->nombre, estudiante->apellido, materia->nombre);
             return;
         }
+        anterior = actual;
         actual = actual->siguiente;
     }
-}*/
+    printf("Eliminacion fallida: El alumno %s %s no se encontraba cursando la materia %s.\n", estudiante->nombre, estudiante->apellido, materia_por_codigo (sistema, codigo_materia)->nombre);
+}
+
+
+void aprobar_materia_cursada_estudiante(sistema *sistema, char *nombre, char *apellido, int codigo_materia, int nota_materia){
+    estudiante *estudiante_actual = sistema->estudiantes;
+    while (estudiante_actual != NULL) {
+        if (strcasecmp(estudiante_actual->nombre, nombre) == 0 && strcasecmp(estudiante_actual->apellido, apellido) == 0) {
+            if(materia_por_codigo(sistema, codigo_materia) == NULL){
+                printf("La materia con el código %d no existe.\n", codigo_materia);
+                return;
+            }
+
+            materias_alumno *materia_alumno_a_cursar = materias_cursada(estudiante_actual, codigo_materia);
+            materia *materia = materia_por_codigo (sistema, codigo_materia);
+            if (materia_alumno_a_cursar == NULL){
+                printf("El estudiante %s %s no se encuentra anotado en la materia %s con el código %d\n", estudiante_actual->nombre, estudiante_actual->apellido, materia->nombre, materia->codigo);
+                return;
+            }
+
+            eliminar_materia_cursada(sistema, estudiante_actual, estudiante_actual->materias_alumno, codigo_materia);
+            if (nota_materia < 4){
+                printf("El estudiante %s %s ha desaprobado la materia %s.\n", estudiante_actual->nombre, estudiante_actual->apellido, materia->nombre);
+                return;
+            }
+            materias_aprobadas *nueva = malloc(sizeof(materias_aprobadas));
+            nueva->codigo_materia = codigo_materia;
+            nueva->nota_materia = nota_materia;
+            nueva->siguiente = sistema->estudiantes->materias_aprobadas;
+            sistema->estudiantes->materias_aprobadas = nueva;
+            printf("El estudiante %s %s ha aprobado la materia %s con una nota de %d\n", estudiante_actual->nombre, estudiante_actual->apellido, materia->nombre, nueva->nota_materia);
+            return;
+
+        }
+        estudiante_actual = estudiante_actual->siguiente;
+    }
+}
 
 void eliminar_estudiante(sistema *sistema, char *nombre, char *apellido) {
     estudiante *actual = sistema->estudiantes;
@@ -368,8 +447,15 @@ int main() {
 
     estudiante_por_nombre(sistema, "Jose");
     cursar_materia(sistema, "Jose", "Rodriguez", 2002);
-    cursar_materia(sistema, "Jose", "Rodriguez", 1001);
+
+
     cursar_materia(sistema, "Jose", "Rodriguez", 2032);
+    estudiante *estudiante_en_cuestion = estudiante_por_nombre_apellido(sistema, "Jose", "Rodriguez");
+    listar_materias_aprobadas(estudiante_en_cuestion, sistema);
+    //aprobar_materia_cursada_estudiante(sistema, "Jose", "Rodriguez", 1001, 9);
+    aprobar_materia_cursada_estudiante(sistema, "Jose", "Rodriguez", 1001, 5);
+    listar_materias_cursadas(estudiante_en_cuestion, sistema);
+    listar_materias_aprobadas(estudiante_en_cuestion, sistema);
 
     printf("-------------------------------------------------------------\n");
 
