@@ -307,14 +307,22 @@ void agregar_materia(sistema *sistema, char *nombre, int codigo, int cupo) {
     }
 }*/
 
-void agregar_materia_correlativa(sistema *sistema, char *nombre, int codigo, int cupo) {
-    materia *nueva = malloc(sizeof(materia));
-    strcpy(nueva->nombre, nombre);
-    nueva->codigo = codigo;
-    nueva->cupo = cupo;
-    nueva->materias_correlativas = NULL;
-    nueva->siguiente = sistema->materias;
-    sistema->materias = nueva;
+void agregar_materia_correlativa(sistema *sistema, int codigo_materia_actual, int codigo_materia_correlativa) {
+    materia *materia_actual = materia_por_codigo (sistema, codigo_materia_actual);
+    if (materia_actual == NULL){
+        printf("La materia con el código %d no exite.\n", codigo_materia_actual);
+        return;
+    }
+    materia *materia_correlativa = materia_por_codigo (sistema, codigo_materia_correlativa);
+    if (materia_correlativa == NULL){
+        printf("La materia correlativa con el código %d no exite.\n", codigo_materia_correlativa);
+        return;
+    }
+    materias_correlativas *nueva = malloc(sizeof(materias_correlativas));
+    nueva->codigo_materia = codigo_materia_correlativa;
+    nueva->siguiente = sistema->materias->materias_correlativas;
+    sistema->materias->materias_correlativas = nueva;
+    printf("Se ha agregado a la materia %s como correlativa de %s.\n", materia_correlativa->nombre, materia_actual->nombre);
 }
 
 void listar_materias(sistema *sistema) {
@@ -484,6 +492,7 @@ int main() {
     listar_materias_cursadas(estudiante_en_cuestion, sistema);
     listar_materias_aprobadas(estudiante_en_cuestion, sistema);
     cursar_materia(sistema, "Jose", "Rodriguez", 2002);
+    agregar_materia_correlativa(sistema, 2002, 1001);
 
     printf("-------------------------------------------------------------\n");
 
