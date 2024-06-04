@@ -138,6 +138,31 @@ void listar_materias_aprobadas(estudiante *estudiante, sistema *sistema) {
     }
 }
 
+void calcular_promedio_estudiante(estudiante *estudiante) {
+    materias_aprobadas *actual = estudiante->materias_aprobadas;
+    float promedio = 0;
+    int cantidad_materias = 0;
+    while (actual != NULL) {
+        promedio += actual->nota_materia;
+        cantidad_materias += 1;
+        actual = actual->siguiente;
+    }
+    promedio = promedio / cantidad_materias;
+    printf("El estudiante %s %s tiene un promedio de %0.1f\n", estudiante->nombre, estudiante->apellido, promedio);
+}
+
+bool verificar_cumplir_correlativas (sistema *sistema, estudiante *estudiante, materia *materia){
+    materias_correlativas *actual = materia->materias_correlativas;
+    while (actual != NULL) {
+        if (materias_aprobada(estudiante, actual->codigo_materia) == NULL) {
+            printf("La materia correlativa %s no se encuentra aprobada para poder cursar %s.\n", materia_por_codigo(sistema, actual->codigo_materia)->nombre,materia->nombre);
+            return false;
+        }
+        actual = actual->siguiente;
+    }
+    return true;
+}
+
 void cursar_materia(sistema *sistema, char *nombre, char *apellido, int codigo_materia) {
     estudiante *actual = sistema->estudiantes;
     while (actual != NULL) {
@@ -155,6 +180,9 @@ void cursar_materia(sistema *sistema, char *nombre, char *apellido, int codigo_m
             }
             if (materia_alumno_a_cursar_aprobada != NULL){
                 printf("El estudiante %s %s ya tiene la materia %s aprobada con una nota de %d\n", actual->nombre, actual->apellido, materia_a_cursar->nombre, materia_alumno_a_cursar_aprobada->nota_materia);
+                return;
+            }
+            if (!verificar_cumplir_correlativas (sistema, actual, materia_a_cursar)){
                 return;
             }
             if (materia_a_cursar->cupo == 0){
@@ -481,18 +509,21 @@ int main() {
 
     estudiante_por_nombre(sistema, "Jose");
     cursar_materia(sistema, "Jose", "Rodriguez", 2002);
+    cursar_materia(sistema, "Jose", "Rodriguez", 1001);
 
 
     cursar_materia(sistema, "Jose", "Rodriguez", 2032);
     estudiante *estudiante_en_cuestion = estudiante_por_nombre_apellido(sistema, "Jose", "Rodriguez");
     listar_materias_aprobadas(estudiante_en_cuestion, sistema);
-    //aprobar_materia_cursada_estudiante(sistema, "Jose", "Rodriguez", 1001, 9);
+    aprobar_materia_cursada_estudiante(sistema, "Jose", "Rodriguez", 1001, 9);
     aprobar_materia_cursada_estudiante(sistema, "Jose", "Rodriguez", 2002, 5);
-    eliminar_materia_cursada(sistema, estudiante_en_cuestion, 2002);
+    //eliminar_materia_cursada(sistema, estudiante_en_cuestion, 2002);
     listar_materias_cursadas(estudiante_en_cuestion, sistema);
     listar_materias_aprobadas(estudiante_en_cuestion, sistema);
-    cursar_materia(sistema, "Jose", "Rodriguez", 2002);
+
     agregar_materia_correlativa(sistema, 2002, 1001);
+    cursar_materia(sistema, "Jose", "Rodriguez", 2002);
+    calcular_promedio_estudiante(estudiante_en_cuestion);
 
     printf("-------------------------------------------------------------\n");
 
