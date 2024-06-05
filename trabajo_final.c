@@ -434,7 +434,7 @@ void calcular_estadisticas_materias_cursadas_actualmente(sistema *sistema) {
     int total_estudiantes = 0;
     int *materias_cursadas = NULL;
 
-    // Primero contamos el número total de materias y estudiantes
+    //Contamos el número total de materias y estudiantes
     while (actual_materia != NULL) {
         total_materias++;
         actual_materia = actual_materia->siguiente;
@@ -446,13 +446,13 @@ void calcular_estadisticas_materias_cursadas_actualmente(sistema *sistema) {
         actual_estudiante = actual_estudiante->siguiente;
     }
 
-    // Reservamos memoria para el contador de materias cursadas
+    //Reservamos memoria para el contador de materias cursadas
     materias_cursadas = malloc(total_materias * sizeof(int));
     for (int i = 0; i < total_materias; i++) {
         materias_cursadas[i] = 0;
     }
 
-    // Contamos cuántos estudiantes cursan cada materia
+    //Contamos cuántos estudiantes cursan cada materia
     actual_estudiante = sistema->estudiantes;
     while (actual_estudiante != NULL) {
         materias_alumno *materia_alumno = actual_estudiante->materias_alumno;
@@ -473,7 +473,7 @@ void calcular_estadisticas_materias_cursadas_actualmente(sistema *sistema) {
         actual_estudiante = actual_estudiante->siguiente;
     }
 
-    // Imprimimos las estadísticas
+    //Imprimimos las estadísticas
     actual_materia = sistema->materias;
     int index = 0;
     while (actual_materia != NULL) {
@@ -483,7 +483,6 @@ void calcular_estadisticas_materias_cursadas_actualmente(sistema *sistema) {
         index++;
     }
 
-    // Liberamos la memoria reservada
     free(materias_cursadas);
 }
 
