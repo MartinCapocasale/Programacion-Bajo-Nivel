@@ -5,6 +5,7 @@ Trabajo Practico Final
     -Nicolas Cesarini
     -Rodrigo Livolsi
     -Martin Capocasale
+    -Nicolas Menafre
 
 -Puntos implentados:
     -Dar de alta, modificar, eliminar y listar estudiantes
