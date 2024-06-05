@@ -486,6 +486,64 @@ void calcular_estadisticas_materias_cursadas_actualmente(sistema *sistema) {
     free(materias_cursadas);
 }
 
+void calcular_estadisticas_materias_aprobadas(sistema *sistema) {
+    materia *actual_materia = sistema->materias;
+    int total_materias = 0;
+    int total_estudiantes = 0;
+    int *materias_aprobadass = NULL;
+
+    //Contamos el número total de materias y estudiantes
+    while (actual_materia != NULL) {
+        total_materias++;
+        actual_materia = actual_materia->siguiente;
+    }
+
+    estudiante *actual_estudiante = sistema->estudiantes;
+    while (actual_estudiante != NULL) {
+        total_estudiantes++;
+        actual_estudiante = actual_estudiante->siguiente;
+    }
+
+    //Reservamos memoria para el contador de materias aprobadas
+    materias_aprobadass = malloc(total_materias * sizeof(int));
+    for (int i = 0; i < total_materias; i++) {
+        materias_aprobadass[i] = 0;
+    }
+
+    //Contamos cuántos estudiantes han aprobado cada materia
+    actual_estudiante = sistema->estudiantes;
+    while (actual_estudiante != NULL) {
+        materias_aprobadas *materia_aprobada_alumno = actual_estudiante->materias_aprobadas;
+        while (materia_aprobada_alumno != NULL) {
+            int codigo = materia_aprobada_alumno->codigo_materia;
+            materia *materia_actual = sistema->materias;
+            int index = 0;
+            while (materia_actual != NULL) {
+                if (materia_actual->codigo == codigo) {
+                    materias_aprobadass[index]++;
+                    break;
+                }
+                materia_actual = materia_actual->siguiente;
+                index++;
+            }
+            materia_aprobada_alumno = materia_aprobada_alumno->siguiente;
+        }
+        actual_estudiante = actual_estudiante->siguiente;
+    }
+
+    //Imprimimos las estadísticas
+    actual_materia = sistema->materias;
+    int index = 0;
+    while (actual_materia != NULL) {
+        float porcentaje = ((float) materias_aprobadass[index] / total_estudiantes) * 100;
+        printf("Materia: %s (Código: %d) ha sido aprobada por %d estudiantes (%0.2f%%)\n", actual_materia->nombre, actual_materia->codigo, materias_aprobadass[index], porcentaje);
+        actual_materia = actual_materia->siguiente;
+        index++;
+    }
+
+    free(materias_aprobadass);
+}
+
 int main() {
     sistema *sistema = crear_sistema();
     
@@ -591,6 +649,7 @@ int main() {
     agregar_estudiante(sistema, "Jaime", "Perez", 23);
     cursar_materia(sistema, "Jaime", "Perez", 1001);
     calcular_estadisticas_materias_cursadas_actualmente(sistema);
+    calcular_estadisticas_materias_aprobadas(sistema);
     
     liberar_memoria_estudiantes(sistema->estudiantes);
     liberar_memoria_materias(sistema->materias);
