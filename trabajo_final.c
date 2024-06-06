@@ -544,6 +544,70 @@ void calcular_estadisticas_materias_aprobadas(sistema *sistema) {
     free(materias_aprobadass);
 }
 
+void exportar_estudiantes_a_archivo(sistema *sistema, const char *nombre_archivo) {
+    FILE *archivo = fopen(nombre_archivo, "w");
+    if (archivo == NULL) {
+        printf("No se pudo abrir el archivo para escribir.\n");
+        return;
+    }
+
+    estudiante *actual = sistema->estudiantes;
+    while (actual != NULL) {
+        fprintf(archivo, "%s,%s,%d\n", actual->nombre, actual->apellido, actual->edad);
+        actual = actual->siguiente;
+    }
+
+    fclose(archivo);
+}
+
+void exportar_materias_a_archivo(sistema *sistema, const char *nombre_archivo) {
+    FILE *archivo = fopen(nombre_archivo, "w");
+    if (archivo == NULL) {
+        printf("No se pudo abrir el archivo para escribir.\n");
+        return;
+    }
+
+    materia *actual = sistema->materias;
+    while (actual != NULL) {
+        fprintf(archivo, "%s,%d,%d\n", actual->nombre, actual->codigo, actual->cupo);
+        actual = actual->siguiente;
+    }
+
+    fclose(archivo);
+}
+
+void leer_estudiantes_de_archivo(sistema *sistema, const char *nombre_archivo) {
+    FILE *archivo = fopen(nombre_archivo, "r");
+    if (archivo == NULL) {
+        printf("No se pudo abrir el archivo para leer.\n");
+        return;
+    }
+
+    char nombre[50], apellido[50];
+    int edad;
+    while (fscanf(archivo, "%49[^,],%49[^,],%d\n", nombre, apellido, &edad) != EOF) {
+        agregar_estudiante(sistema, nombre, apellido, edad);
+    }
+
+    fclose(archivo);
+}
+
+void leer_materias_de_archivo(sistema *sistema, const char *nombre_archivo) {
+    FILE *archivo = fopen(nombre_archivo, "r");
+    if (archivo == NULL) {
+        printf("No se pudo abrir el archivo para leer.\n");
+        return;
+    }
+
+    char nombre[50];
+    int codigo, cupo;
+    while (fscanf(archivo, "%49[^,],%d,%d\n", nombre, &codigo, &cupo) != EOF) {
+        agregar_materia(sistema, nombre, codigo, cupo);
+    }
+
+    fclose(archivo);
+}
+
 int main() {
     sistema *sistema = crear_sistema();
     
@@ -650,7 +714,8 @@ int main() {
     cursar_materia(sistema, "Jaime", "Perez", 1001);
     calcular_estadisticas_materias_cursadas_actualmente(sistema);
     calcular_estadisticas_materias_aprobadas(sistema);
-    
+    //exportar_estudiantes_a_archivo(sistema,"estudiantes.csv");
+    //exportar_materias_a_archivo(sistema,"materias.csv");
     liberar_memoria_estudiantes(sistema->estudiantes);
     liberar_memoria_materias(sistema->materias);
     free(sistema);
