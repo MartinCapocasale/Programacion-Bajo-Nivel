@@ -560,37 +560,70 @@ void calcular_estadisticas_materias_aprobadas(sistema *sistema) {
 
     free(materias_aprobadass);
 }
-
-/*void exportar_estudiantes_a_archivo(sistema *sistema, const char *nombre_archivo) {
-    FILE *archivo = fopen(nombre_archivo, "w");
+//funcion para chequear luego si un alumno o materia ya esta en el archivo a exportar
+bool linea_existe_en_archivo(const char *nombre_archivo, const char *linea) {
+    FILE *archivo = fopen(nombre_archivo, "r");
     if (archivo == NULL) {
-        printf("No se pudo abrir el archivo para escribir.\n");
-        return;
+        return false;
     }
 
-    estudiante *actual = sistema->estudiantes;
-    while (actual != NULL) {
-        fprintf(archivo, "%s,%s,%d\n", actual->nombre, actual->apellido, actual->edad);
-        actual = actual->siguiente;
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), archivo)) {
+        //compara la línea actual con la línea proporcionada
+        if (strcmp(buffer, linea) == 0) {
+            fclose(archivo);
+            return true;
+        }
     }
 
     fclose(archivo);
+    return false;
+}
+
+void exportar_estudiantes_a_archivo(sistema *sistema, const char *nombre_archivo) {
+    estudiante *actual = sistema->estudiantes;
+    while (actual != NULL) {
+        //prepara la línea a escribir
+        char linea[256];
+        snprintf(linea, sizeof(linea), "%s,%s,%d\n", actual->nombre, actual->apellido, actual->edad);
+
+        //verifica si la línea ya existe en el archivo
+        if (!linea_existe_en_archivo(nombre_archivo, linea)) {
+            //abre el archivo en modo append y escribe la línea
+            FILE *archivo = fopen(nombre_archivo, "a");
+            if (archivo == NULL) {
+                printf("No se pudo abrir el archivo para escribir.\n");
+                return;
+            }
+            fputs(linea, archivo);
+            fclose(archivo);
+        }
+
+        actual = actual->siguiente;
+    }
 }
 
 void exportar_materias_a_archivo(sistema *sistema, const char *nombre_archivo) {
-    FILE *archivo = fopen(nombre_archivo, "w");
-    if (archivo == NULL) {
-        printf("No se pudo abrir el archivo para escribir.\n");
-        return;
-    }
-
     materia *actual = sistema->materias;
     while (actual != NULL) {
-        fprintf(archivo, "%s,%d,%d\n", actual->nombre, actual->codigo, actual->cupo);
+        //prepara la línea a escribir
+        char linea[256];
+        snprintf(linea, sizeof(linea), "%s,%d\n", actual->nombre, actual->cupo);
+
+        //verifica si la línea ya existe en el archivo
+        if (!linea_existe_en_archivo(nombre_archivo, linea)) {
+            //abre el archivo en modo append y escribe la línea
+            FILE *archivo = fopen(nombre_archivo, "a");
+            if (archivo == NULL) {
+                printf("No se pudo abrir el archivo para escribir.\n");
+                return;
+            }
+            fputs(linea, archivo);
+            fclose(archivo);
+        }
+
         actual = actual->siguiente;
     }
-
-    fclose(archivo);
 }
 
 void leer_estudiantes_de_archivo(sistema *sistema, const char *nombre_archivo) {
@@ -617,13 +650,13 @@ void leer_materias_de_archivo(sistema *sistema, const char *nombre_archivo) {
     }
 
     char nombre[50];
-    int codigo, cupo;
-    while (fscanf(archivo, "%49[^,],%d,%d\n", nombre, &codigo, &cupo) != EOF) {
-        agregar_materia(sistema, nombre, codigo, cupo);
+    int cupo;
+    while (fscanf(archivo, "%49[^,],%d\n", nombre, &cupo) != EOF) {
+        agregar_materia(sistema, nombre, cupo);
     }
 
     fclose(archivo);
-}*/
+}
 
 int main() {
     sistema *sistema = crear_sistema();
@@ -737,6 +770,9 @@ int main() {
     liberar_memoria_materias(sistema->materias);
     free(sistema);*/
 
+    //importamos los estudiantes y materias desde los archivos
+    leer_estudiantes_de_archivo(sistema, "estudiantes.csv");
+    leer_materias_de_archivo(sistema, "materias.csv");
     int opcion;
     do
     {
@@ -753,12 +789,15 @@ int main() {
         printf("10. Inscribir Estudiante en Materia\n");
         printf("11. Buscar Estudiantes por Rango de Edad\n");
         printf("12. Consultar de materias en curso\n");
-        printf("13. Salir\n");
+        printf("13. Calculo de Estadisticas\n");
+        printf("14. Aprobar Materias\n");
+        printf("15. Exportar/Guardar Alumnos y Materias\n");
+        printf("16. Salir del sistema\n");
         printf("Seleccione una opcion: ");
         scanf("%d", &opcion);
 
         char nombre[50], apellido[50], nuevo_nombre[50], nuevo_apellido[50];
-        int edad, legajo, codigo, cupo, edad_min, edad_max, nuevo_cupo, nuevo_codigo, codigo_correlativa;
+        int edad, legajo, codigo, cupo, edad_min, edad_max, nuevo_cupo, nuevo_codigo, codigo_correlativa, nota;
         estudiante alumno;
 
         switch (opcion)
@@ -848,12 +887,25 @@ int main() {
                 listar_materias_cursadas(&alumno, sistema);
                 printf(". \n");
 
-            case 13://CALCULO ESTADISTICAS DE MATERIAS APROBADAS
+            case 13://CALCULO ESTADISTICAS DE MATERIAS APROBADAS y CURSADAS
                 printf("Calculando estadisticas... \n");
+                calcular_estadisticas_materias_cursadas_actualmente(sistema);
                 calcular_estadisticas_materias_aprobadas(sistema);
                 break;
-
-            case 14:
+            case 14://APROBAR MATERIA
+                printf("Ingrese el legajo del estudiante: ");
+                scanf("%d", &legajo);
+                printf("Ingrese el codigo de la materia: ");
+                scanf("%d", &codigo);
+                printf("Ingrese la nota de la materia: ");
+                scanf("%d", &nota);
+                aprobar_materia_cursada_estudiante(sistema,legajo,codigo,nota);
+                break;
+            case 15://EXPORTAR ALUMNOS Y MATERIAS
+                exportar_estudiantes_a_archivo(sistema,"estudiantes.csv");
+                exportar_materias_a_archivo(sistema,"materias.csv");
+                break;    
+            case 16:
                 free(sistema);
                 printf("Saliendo...\n");
                 break;
@@ -862,7 +914,7 @@ int main() {
                 break;
         }
 
-    } while (opcion !=14);
+    } while (opcion !=16);
 
 
     return 0;
