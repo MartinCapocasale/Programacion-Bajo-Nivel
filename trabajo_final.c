@@ -614,26 +614,19 @@ void exportar_estudiantes_a_archivo(sistema *sistema, const char *nombre_archivo
 }
 
 void exportar_materias_a_archivo(sistema *sistema, const char *nombre_archivo) {
+    FILE *archivo = fopen(nombre_archivo, "w");
+    if (archivo == NULL) {
+        printf("No se pudo abrir el archivo para escribir.\n");
+        return;
+    }
+
     materia *actual = sistema->materias;
     while (actual != NULL) {
-        //prepara la línea a escribir
-        char linea[256];
-        snprintf(linea, sizeof(linea), "%s,%d\n", actual->nombre, actual->cupo);
-
-        //verifica si la línea ya existe en el archivo
-        if (!linea_existe_en_archivo(nombre_archivo, linea)) {
-            //abre el archivo en modo append y escribe la línea
-            FILE *archivo = fopen(nombre_archivo, "a");
-            if (archivo == NULL) {
-                printf("No se pudo abrir el archivo para escribir.\n");
-                return;
-            }
-            fputs(linea, archivo);
-            fclose(archivo);
-        }
-
+        fprintf(archivo, "%s,%d\n", actual->nombre, actual->cupo);
         actual = actual->siguiente;
     }
+
+    fclose(archivo);
 }
 
 void leer_estudiantes_de_archivo(sistema *sistema, const char *nombre_archivo) {
