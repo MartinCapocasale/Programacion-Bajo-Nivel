@@ -52,7 +52,7 @@ sistema *crear_sistema(void) {
 
 int verificar_mayor_legajo(sistema *sistema){
     estudiante *actual = sistema->estudiantes;
-    int legajo = 0;
+    int legajo = 1000;
     while (actual != NULL) {
         if (legajo < actual->legajo) {
             legajo = actual->legajo;
@@ -77,18 +77,12 @@ void agregar_estudiante(sistema *sistema, char *nombre,char *apellido, int edad)
 
 void modificar_estudiante(sistema *sistema, int legajo, char *nuevo_nombre, char *nuevo_apellido, int edad) {
     estudiante *actual = sistema->estudiantes;
-    char nombre_actual[50];
-    char apellido_actual[50];
     while (actual != NULL) {
         if (legajo == actual->legajo) {
-            strcpy(nombre_actual, actual->nombre);
-            strcpy(apellido_actual, actual->apellido);
             strcpy(actual->nombre, nuevo_nombre);
             strcpy(actual->apellido, nuevo_apellido);
             actual->edad = edad;
-            printf("Modificacion exitosa: El Estudiante %s %s ahora se llama %s %s y tiene %d anios.\n", nombre_actual, apellido_actual, nuevo_nombre, nuevo_apellido, edad);
-            //free(nombre_actual);
-            //free(apellido_actual);
+            printf("Modificacion exitosa: El Estudiante con el legajo número %d ahora se llama %s %s y tiene %d anios.\n", legajo, nuevo_nombre, nuevo_apellido, edad);
             return;
         }
         actual = actual->siguiente;
@@ -96,7 +90,6 @@ void modificar_estudiante(sistema *sistema, int legajo, char *nuevo_nombre, char
     printf("Modificacion fallida: El Estudiante con legajo número %d no fue encontrado.\n", legajo);
 }
 
-// Tengo que revisar porque acá tengo que poner un puntero para que funcione (No lo estoy entendiendo)
 materia *materia_por_codigo (sistema *sistema, int codigo_materia){
     materia *actual = sistema->materias;
     while (actual != NULL){
@@ -282,21 +275,15 @@ void aprobar_materia_cursada_estudiante(sistema *sistema, int legajo, int codigo
 void eliminar_estudiante(sistema *sistema, int legajo) {
     estudiante *actual = sistema->estudiantes;
     estudiante *anterior = NULL;
-    char estudiante_actual_nombre[50];
-    char estudiante_actual_apellido[50];
     while (actual != NULL) {
         if (legajo == actual->legajo) {
-            strcpy(estudiante_actual_nombre, actual->nombre);
-            strcpy(estudiante_actual_apellido, actual->apellido);
             if (anterior == NULL) {
                 sistema->estudiantes = actual->siguiente;
             } else {
                 anterior->siguiente = actual->siguiente;
             }
             free(actual);
-            printf("Eliminacion exitosa: El Estudiante %s %s fue eliminado.\n", estudiante_actual_nombre, estudiante_actual_apellido);
-            //free(estudiante_actual_nombre);
-            //free(estudiante_actual_apellido);
+            printf("Eliminacion exitosa: El Estudiante con el legajo número %d fue eliminado.\n", legajo);
             return;
         }
         anterior = actual;
@@ -309,7 +296,7 @@ void eliminar_estudiante(sistema *sistema, int legajo) {
 void listar_estudiantes(sistema *sistema) {
     estudiante *actual = sistema->estudiantes;
     while (actual != NULL) {
-        printf("%s,%s,%d\n", actual->nombre,actual->apellido, actual->edad);
+        printf("%s,%s,%d,%d\n", actual->nombre,actual->apellido, actual->edad, actual->legajo);
         actual = actual->siguiente;
     }
 }
@@ -317,33 +304,25 @@ void listar_estudiantes(sistema *sistema) {
 void listar_estudiantes_por_nombre(estudiante *estudiantes) {
     estudiante *actual = estudiantes;
     while (actual != NULL) {
-        printf("%s,%s,%d\n", actual->nombre,actual->apellido, actual->edad);
+        printf("%s,%s,%d,%d\n", actual->nombre,actual->apellido, actual->edad, actual->legajo);
         actual = actual->siguiente;
     }
 }
 
-estudiante estudiante_por_nombre(sistema *sistema, char *nombre){
+void listar_estudiantes_filtrados_por_nombre(sistema *sistema, char *nombre){
     estudiante *actual = sistema->estudiantes;
     estudiante *lista = NULL;
     while (actual != NULL) {
         if (strcasecmp(actual->nombre, nombre) == 0) {
-            estudiante *nuevo = malloc(sizeof(estudiante));
-            strcpy(nuevo->nombre, actual->nombre);
-            strcpy(nuevo->apellido, actual->apellido);
-            nuevo->edad = actual->edad;
-            nuevo->materias_alumno = actual->materias_alumno;
-            nuevo->siguiente = lista;
-            lista = nuevo;
+            printf("%s,%s,%d,%d\n", actual->nombre,actual->apellido, actual->edad, actual->legajo);
         }
         actual = actual->siguiente;
     }
-    listar_estudiantes_por_nombre(lista);
-    return *lista;
 }
 
 int verificar_mayor_codigo_materia(sistema *sistema){
     materia *actual = sistema->materias;
-    int codigo = 0;
+    int codigo = 100;
     while (actual != NULL) {
         if (codigo < actual->codigo) {
             codigo = actual->codigo;
@@ -399,14 +378,11 @@ void listar_materias(sistema *sistema) {
 
 void modificar_materia(sistema *sistema, int codigo, char *nuevo_nombre, int nuevo_cupo) {
     materia *actual = sistema->materias;
-    char materia_actual_nombre[50];
     while (actual != NULL) {
         if (codigo == actual->codigo) {
-            strcpy(materia_actual_nombre, actual->nombre);
             strcpy(actual->nombre, nuevo_nombre);
             actual->cupo = nuevo_cupo;
-            printf("Modificacion exitosa: La materia %s ahora se llama %s, tiene el codigo %d y el cupo %d.\n", materia_actual_nombre, nuevo_nombre, codigo, nuevo_cupo);
-            //free(materia_actual_nombre);
+            printf("Modificacion exitosa: La materia con el código %d ahora se llama %s y tiene el cupo %d.\n", codigo, nuevo_nombre, codigo, nuevo_cupo);
             return;
         }
         actual = actual->siguiente;
@@ -417,18 +393,15 @@ void modificar_materia(sistema *sistema, int codigo, char *nuevo_nombre, int nue
 void eliminar_materia(sistema *sistema, int codigo) {
     materia *actual = sistema->materias;
     materia *anterior = NULL;
-    char materia_actual_nombre[50];
     while (actual != NULL) {
         if (codigo == actual->codigo) {
-            strcpy(materia_actual_nombre, actual->nombre);
             if (anterior == NULL) {
                 sistema->materias = actual->siguiente;
             } else {
                 anterior->siguiente = actual->siguiente;
             }
             free(actual);
-            printf("Eliminacion exitosa: La Materia %s fue eliminada.\n", materia_actual_nombre);
-            //free(materia_actual_nombre);
+            printf("Eliminacion exitosa: La Materia con el código %d fue eliminada.\n", codigo);
             return;
         }
         anterior = actual;
@@ -585,7 +558,7 @@ void calcular_estadisticas_materias_aprobadas(sistema *sistema) {
     free(materias_aprobadass);
 }
 
-void exportar_estudiantes_a_archivo(sistema *sistema, const char *nombre_archivo) {
+/*void exportar_estudiantes_a_archivo(sistema *sistema, const char *nombre_archivo) {
     FILE *archivo = fopen(nombre_archivo, "w");
     if (archivo == NULL) {
         printf("No se pudo abrir el archivo para escribir.\n");
@@ -647,7 +620,7 @@ void leer_materias_de_archivo(sistema *sistema, const char *nombre_archivo) {
     }
 
     fclose(archivo);
-}
+}*/
 
 int main() {
     sistema *sistema = crear_sistema();
@@ -662,24 +635,24 @@ int main() {
     printf("-------------------------------------------------------------\n");
 
     printf("\nModificando a Juan Perez por Pablo Perez y modificando la edad a 23 anios:\n");
-    modificar_estudiante(sistema, 2, "Pablo", "Perez", 23);
+    modificar_estudiante(sistema, 1002, "Pablo", "Perez", 23);
     listar_estudiantes(sistema);
     
     printf("\nIntentando modificar a Maria Gonzalez por Maria Lopez y modificando la edad a 21 anios:\n");
-    modificar_estudiante(sistema, 20, "Maria", "Lopez", 21);
+    modificar_estudiante(sistema, 1020, "Maria", "Lopez", 21);
     listar_estudiantes(sistema);
 
     printf("-------------------------------------------------------------\n");
 
     printf("\nEliminando a Pablo Perez:\n");
-    eliminar_estudiante(sistema, 2);
+    eliminar_estudiante(sistema, 1002);
 
     printf("Lista de estudiantes:\n");
     listar_estudiantes(sistema);
 
     
     printf("\nIntentando eliminar a Maria Gonzalez:\n");
-    eliminar_estudiante(sistema, 20);
+    eliminar_estudiante(sistema, 1020);
 
     printf("Lista de estudiantes:\n");
     listar_estudiantes(sistema);
@@ -688,7 +661,7 @@ int main() {
 
     printf("\nProbar minusculas:\n");
     printf("\nIntentando eliminar a martin gomez:\n");
-    eliminar_estudiante(sistema, 50);
+    eliminar_estudiante(sistema, 1050);
 
     printf("Lista de estudiantes:\n");
     listar_estudiantes(sistema);
@@ -706,53 +679,53 @@ int main() {
     printf("-------------------------------------------------------------\n"); 
 
     printf("\nModificando materia Historia por Quimica con nuevo codigo 2002 y cupo 35:\n");
-    modificar_materia(sistema, 2, "Quimica", 35);
+    modificar_materia(sistema, 102, "Quimica", 35);
     listar_materias(sistema);
 
     printf("\nIntentando modificar materia Dibujo:\n");
-    modificar_materia(sistema, 54, "Dibujo Tecnico", 15);
+    modificar_materia(sistema, 154, "Dibujo Tecnico", 15);
     listar_materias(sistema);
 
     printf("\nProbar minusculas:\n");
     printf("\nModificando materia geografia por Historia con nuevo codigo 2002 y cupo 35:\n");
-    modificar_materia(sistema, 3, "Historia", 15);
+    modificar_materia(sistema, 103, "Historia", 15);
     listar_materias(sistema);
 
     printf("-------------------------------------------------------------\n"); 
 
     printf("\nEliminando materia Historia:\n");
-    eliminar_materia(sistema, 3);
+    eliminar_materia(sistema, 103);
     listar_materias(sistema);
 
     printf("\nIntentando eliminar materia Dibujo:\n");
-    eliminar_materia(sistema, 80);
+    eliminar_materia(sistema, 180);
     listar_materias(sistema);
 
-    estudiante_por_nombre(sistema, "Jose");
-    cursar_materia(sistema, 3, 1);
-    cursar_materia(sistema, 3, 2);
+    listar_estudiantes_filtrados_por_nombre(sistema, "Jose");
+    cursar_materia(sistema, 1003, 101);
+    cursar_materia(sistema, 1003, 102);
 
 
-    cursar_materia(sistema,3, 2032);
+    cursar_materia(sistema,1003, 107);
     estudiante *estudiante_en_cuestion = estudiante_por_nombre_apellido(sistema, "Jose", "Rodriguez");
     listar_materias_aprobadas(estudiante_en_cuestion, sistema);
-    aprobar_materia_cursada_estudiante(sistema, 3, 1, 9);
-    aprobar_materia_cursada_estudiante(sistema, 3, 2, 5);
+    aprobar_materia_cursada_estudiante(sistema, 1003, 101, 9);
+    aprobar_materia_cursada_estudiante(sistema, 1003, 102, 5);
     //eliminar_materia_cursada(sistema, estudiante_en_cuestion, 2002);
     listar_materias_cursadas(estudiante_en_cuestion, sistema);
     listar_materias_aprobadas(estudiante_en_cuestion, sistema);
 
-    agregar_materia_correlativa(sistema, 2002, 1001);
-    cursar_materia(sistema, 3, 2);
+    agregar_materia_correlativa(sistema, 101, 103);
+    cursar_materia(sistema, 1003, 102);
     calcular_promedio_estudiante(estudiante_en_cuestion);
 
     printf("-------------------------------------------------------------\n");
 
     printf("\nBuscando estudiantes por rango de edad 20 - 22:\n");
     buscar_estudiantes_por_rango_edad(sistema, 20, 22);
-    cursar_materia(sistema, 50, 1);
+    cursar_materia(sistema, 1050, 101);
     agregar_estudiante(sistema, "Jaime", "Perez", 23);
-    cursar_materia(sistema, 4, 1);
+    cursar_materia(sistema, 1004, 101);
     calcular_estadisticas_materias_cursadas_actualmente(sistema);
     calcular_estadisticas_materias_aprobadas(sistema);
     //exportar_estudiantes_a_archivo(sistema,"estudiantes.csv");
