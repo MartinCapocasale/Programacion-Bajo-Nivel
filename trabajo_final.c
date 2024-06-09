@@ -161,8 +161,12 @@ void calcular_promedio_estudiante(estudiante *estudiante) {
         cantidad_materias += 1;
         actual = actual->siguiente;
     }
-    promedio = promedio / cantidad_materias;
-    printf("El estudiante %s %s tiene un promedio de %0.1f\n", estudiante->nombre, estudiante->apellido, promedio);
+    if (cantidad_materias > 0) {
+        promedio = promedio / cantidad_materias;
+        printf("El estudiante %s %s tiene un promedio de %0.1f\n", estudiante->nombre, estudiante->apellido, promedio);
+    } else {
+        printf("El estudiante %s %s no tiene materias aprobadas.\n", estudiante->nombre, estudiante->apellido);
+    }
 }
 
 bool verificar_cumplir_correlativas (sistema *sistema, estudiante *estudiante, materia *materia){
@@ -181,39 +185,38 @@ void cursar_materia(sistema *sistema, int legajo, int codigo_materia) {
     estudiante *actual = sistema->estudiantes;
     while (actual != NULL) {
         if (legajo == actual->legajo) {
-            if(materia_por_codigo(sistema, codigo_materia) == NULL){
+            if (materia_por_codigo(sistema, codigo_materia) == NULL) {
                 printf("La materia con el código %d no existe.\n", codigo_materia);
                 return;
             }
             materias_alumno *materia_alumno_a_cursar = materias_cursada(actual, codigo_materia);
             materias_aprobadas *materia_alumno_a_cursar_aprobada = materias_aprobada(actual, codigo_materia);
-            materia *materia_a_cursar = materia_por_codigo (sistema, codigo_materia);
-            if (materia_alumno_a_cursar != NULL){
-                printf("El estudiante %s %s ya se encuentra cursando la materia %s con el código %d\n", actual->nombre, actual->apellido, materia_a_cursar->nombre, materia_alumno_a_cursar->codigo_materia);
+            materia *materia_a_cursar = materia_por_codigo(sistema, codigo_materia);
+            if (materia_a_cursar->cupo <= 0) {
+                printf("No hay cupo disponible en la materia con código %d.\n", codigo_materia);
                 return;
             }
-            if (materia_alumno_a_cursar_aprobada != NULL){
-                printf("El estudiante %s %s ya tiene la materia %s aprobada con una nota de %d\n", actual->nombre, actual->apellido, materia_a_cursar->nombre, materia_alumno_a_cursar_aprobada->nota_materia);
+            if (materia_alumno_a_cursar != NULL || materia_alumno_a_cursar_aprobada != NULL) {
+                printf("La materia con código %d ya está siendo cursada o ya fue aprobada.\n", codigo_materia);
                 return;
             }
-            if (!verificar_cumplir_correlativas (sistema, actual, materia_a_cursar)){
-                return;
+            if (verificar_cumplir_correlativas(sistema, actual, materia_a_cursar)) {
+                materias_alumno *nueva = (materias_alumno *)malloc(sizeof(materias_alumno));
+                if (nueva == NULL) {
+                    fprintf(stderr, "No se pudo asignar memoria para la materia a cursar\n");
+                    exit(1);
+                }
+                nueva->codigo_materia = codigo_materia;
+                nueva->siguiente = actual->materias_alumno;
+                actual->materias_alumno = nueva;
+                materia_a_cursar->cupo -= 1;
+                printf("La materia con código %d ha sido asignada exitosamente al alumno con legajo número %d.\n", codigo_materia, legajo);
             }
-            if (materia_a_cursar->cupo == 0){
-                printf("La materia con %s no tiene cupos disponibles.\n", materia_a_cursar->nombre);
-                return;
-            }
-            materias_alumno *nueva = malloc(sizeof(materias_alumno));
-            nueva->codigo_materia = codigo_materia;
-            nueva->siguiente = sistema->estudiantes->materias_alumno;
-            sistema->estudiantes->materias_alumno = nueva;
-            materia_a_cursar->cupo -= 1;
-            printf("La materia %s quedo con un cupo de %d\n", materia_a_cursar->nombre, materia_a_cursar->cupo);
-            printf("El estudiante %s %s se ha anotado correctamente a la materia %s con el código %d\n", actual->nombre, actual->apellido, materia_a_cursar->nombre, nueva->codigo_materia);
             return;
         }
         actual = actual->siguiente;
     }
+    printf("No se encontró al estudiante con legajo número %d.\n", legajo);
 }
 
 void eliminar_materia_cursada(sistema *sistema, estudiante *estudiante, int codigo_materia) {
@@ -238,38 +241,41 @@ void eliminar_materia_cursada(sistema *sistema, estudiante *estudiante, int codi
     printf("Eliminacion fallida: El alumno %s %s no se encontraba cursando la materia %s.\n", estudiante->nombre, estudiante->apellido, materia_por_codigo (sistema, codigo_materia)->nombre);
 }
 
-void aprobar_materia_cursada_estudiante(sistema *sistema, int legajo, int codigo_materia, int nota_materia){
-    estudiante *estudiante_actual = sistema->estudiantes;
-    while (estudiante_actual != NULL) {
-        if (legajo == estudiante_actual->legajo) {
-            if(materia_por_codigo(sistema, codigo_materia) == NULL){
-                printf("La materia con el código %d no existe.\n", codigo_materia);
-                return;
+void aprobar_materia_cursada_estudiante(sistema *sistema, int legajo, int codigo_materia, int nota) {
+    estudiante *actual = sistema->estudiantes;
+    while (actual != NULL) {
+        if (legajo == actual->legajo) {
+            materias_alumno *materia_alumno = actual->materias_alumno;
+            materias_alumno *prev = NULL;
+            while (materia_alumno != NULL) {
+                if (materia_alumno->codigo_materia == codigo_materia) {
+                    materias_aprobadas *nueva = (materias_aprobadas *)malloc(sizeof(materias_aprobadas));
+                    if (nueva == NULL) {
+                        fprintf(stderr, "No se pudo asignar memoria para la materia aprobada\n");
+                        exit(1);
+                    }
+                    nueva->codigo_materia = codigo_materia;
+                    nueva->nota_materia = nota;
+                    nueva->siguiente = actual->materias_aprobadas;
+                    actual->materias_aprobadas = nueva;
+                    if (prev == NULL) {
+                        actual->materias_alumno = materia_alumno->siguiente;
+                    } else {
+                        prev->siguiente = materia_alumno->siguiente;
+                    }
+                    free(materia_alumno);
+                    printf("La materia con código %d ha sido aprobada con nota %d por el alumno con legajo número %d.\n", codigo_materia, nota, legajo);
+                    return;
+                }
+                prev = materia_alumno;
+                materia_alumno = materia_alumno->siguiente;
             }
-
-            materias_alumno *materia_alumno_a_cursar = materias_cursada(estudiante_actual, codigo_materia);
-            materia *materia = materia_por_codigo (sistema, codigo_materia);
-            if (materia_alumno_a_cursar == NULL){
-                printf("El estudiante %s %s no se encuentra anotado en la materia %s con el código %d\n", estudiante_actual->nombre, estudiante_actual->apellido, materia->nombre, materia->codigo);
-                return;
-            }
-
-            eliminar_materia_cursada(sistema, estudiante_actual, codigo_materia);
-            if (nota_materia < 4){
-                printf("El estudiante %s %s ha desaprobado la materia %s.\n", estudiante_actual->nombre, estudiante_actual->apellido, materia->nombre);
-                return;
-            }
-            materias_aprobadas *nueva = malloc(sizeof(materias_aprobadas));
-            nueva->codigo_materia = codigo_materia;
-            nueva->nota_materia = nota_materia;
-            nueva->siguiente = sistema->estudiantes->materias_aprobadas;
-            sistema->estudiantes->materias_aprobadas = nueva;
-            printf("El estudiante %s %s ha aprobado la materia %s con una nota de %d\n", estudiante_actual->nombre, estudiante_actual->apellido, materia->nombre, nueva->nota_materia);
+            printf("El estudiante no estaba cursando la materia con código %d.\n", codigo_materia);
             return;
-
         }
-        estudiante_actual = estudiante_actual->siguiente;
+        actual = actual->siguiente;
     }
+    printf("No se encontró al estudiante con legajo número %d.\n", legajo);
 }
 
 void eliminar_estudiante(sistema *sistema, int legajo) {
@@ -385,7 +391,7 @@ void modificar_materia(sistema *sistema, int codigo, char *nuevo_nombre, int nue
         if (codigo == actual->codigo) {
             strcpy(actual->nombre, nuevo_nombre);
             actual->cupo = nuevo_cupo;
-            printf("Modificacion exitosa: La materia con el código %d ahora se llama %s y tiene el cupo %d.\n", codigo, nuevo_nombre, codigo, nuevo_cupo);
+            printf("Modificacion exitosa: La materia con el código %d ahora se llama %s y tiene el cupo %d.\n", codigo, nuevo_nombre, nuevo_cupo);
             return;
         }
         actual = actual->siguiente;
@@ -792,7 +798,8 @@ int main() {
         printf("13. Calculo de Estadisticas\n");
         printf("14. Aprobar Materias\n");
         printf("15. Exportar/Guardar Alumnos y Materias\n");
-        printf("16. Salir del sistema\n");
+        printf("16. Calcular promedio por legajo\n");
+        printf("17. Salir del sistema\n");
         printf("Seleccione una opcion: ");
         scanf("%d", &opcion);
 
@@ -904,8 +911,14 @@ int main() {
             case 15://EXPORTAR ALUMNOS Y MATERIAS
                 exportar_estudiantes_a_archivo(sistema,"estudiantes.csv");
                 exportar_materias_a_archivo(sistema,"materias.csv");
-                break;    
-            case 16:
+                break;  
+            case 16://CALCULAR PROMEDIO POR LEGAJO
+                printf("Ingrese el legajo del estudiante: ");
+                scanf("%d", &legajo);
+                estudiante *estudiante_en_cuestion = estudiante_por_legajo(sistema, legajo);
+                calcular_promedio_estudiante(estudiante_en_cuestion);
+                break;       
+            case 17:
                 free(sistema);
                 printf("Saliendo...\n");
                 break;
@@ -914,7 +927,7 @@ int main() {
                 break;
         }
 
-    } while (opcion !=16);
+    } while (opcion !=17);
 
 
     return 0;
