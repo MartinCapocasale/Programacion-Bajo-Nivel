@@ -263,6 +263,8 @@ void aprobar_materia_cursada_estudiante(sistema *sistema, int legajo, int codigo
                     } else {
                         prev->siguiente = materia_alumno->siguiente;
                     }
+                    materia *materia = materia_por_codigo (sistema, codigo_materia);
+                    materia->cupo += 1;
                     free(materia_alumno);
                     printf("La materia con código %d ha sido aprobada con nota %d por el alumno con legajo número %d.\n", codigo_materia, nota, legajo);
                     return;
@@ -302,16 +304,16 @@ void eliminar_estudiante(sistema *sistema, int legajo) {
 void listar_estudiantes(sistema *sistema) {
     estudiante *actual = sistema->estudiantes;
     while (actual != NULL) {
-        printf("%s,%s,%d,%d\n", actual->nombre,actual->apellido, actual->edad, actual->legajo);
+        printf("%s,%s, edad: %d, legajo: %d\n", actual->nombre,actual->apellido, actual->edad, actual->legajo);
         actual = actual->siguiente;
     }
 }
 
-void listar_estudiantes_por_legajo(estudiante *estudiantes, int legajo) {
+void listar_estudiante_por_legajo(estudiante *estudiantes, int legajo) {
     estudiante *actual = estudiantes;
     while (actual != NULL) {
         if (legajo == actual->legajo){
-            printf("%s,%s,%d,%d\n", actual->nombre,actual->apellido, actual->edad, actual->legajo);
+            printf("%s,%s, edad: %d, legajo: %d\n", actual->nombre,actual->apellido, actual->edad, actual->legajo);
             return;
         }
         actual = actual->siguiente;
@@ -320,7 +322,6 @@ void listar_estudiantes_por_legajo(estudiante *estudiantes, int legajo) {
 
 void listar_estudiantes_filtrados_por_nombre(sistema *sistema, char *nombre){
     estudiante *actual = sistema->estudiantes;
-    estudiante *lista = NULL;
     while (actual != NULL) {
         if (strcasecmp(actual->nombre, nombre) == 0) {
             printf("%s,%s,%d,%d\n", actual->nombre,actual->apellido, actual->edad, actual->legajo);
@@ -351,14 +352,6 @@ void agregar_materia(sistema *sistema, char *nombre, int cupo) {
     sistema->materias = nueva;
 }
 
-/*materia obtener_materia_por_codigo(sistema *sistema) {
-    materia *actual = sistema->materias;
-    while (actual != NULL) {
-        printf("%s,%d,%d\n", actual->nombre, actual->codigo, actual->cupo);
-        actual = actual->siguiente;
-    }
-}*/
-
 void agregar_materia_correlativa(sistema *sistema, int codigo_materia_actual, int codigo_materia_correlativa) {
     materia *materia_actual = materia_por_codigo (sistema, codigo_materia_actual);
     if (materia_actual == NULL){
@@ -380,7 +373,18 @@ void agregar_materia_correlativa(sistema *sistema, int codigo_materia_actual, in
 void listar_materias(sistema *sistema) {
     materia *actual = sistema->materias;
     while (actual != NULL) {
-        printf("%s,%d,%d\n", actual->nombre, actual->codigo, actual->cupo);
+        printf("%s, código: %d, cupo: %d\n", actual->nombre, actual->codigo, actual->cupo);
+        actual = actual->siguiente;
+    }
+}
+
+void listar_materias_por_codigo(sistema *sistema, int codigo) {
+    materia *actual = sistema->materias;
+    while (actual != NULL) {
+        if (codigo == actual->codigo){
+            printf("%s, código: %d, cupo: %d\n", actual->nombre, actual->codigo, actual->cupo);
+            return;
+        }
         actual = actual->siguiente;
     }
 }
@@ -784,23 +788,25 @@ int main() {
     {
         printf("\n--- Sistema de Gestion Academica ---\n");
         printf("1. Agregar Estudiante\n");
-        printf("2. Modificar Estudiante\n");
-        printf("3. Eliminar Estudiante\n");
-        printf("4. Listar Estudiantes\n");
-        printf("5. Listar Estudiantes Filtrados por Nombre\n");
-        printf("6. Agregar Materia\n");
-        printf("7. Agregar Correlatividad\n");
-        printf("8. Modificar Materia\n");
-        printf("9. Eliminar Materia\n");
-        printf("10. Listar Materias\n");
-        printf("11. Inscribir Estudiante en Materia\n");
-        printf("12. Buscar Estudiantes por Rango de Edad\n");
-        printf("13. Consultar de materias en curso\n");
-        printf("14. Calculo de Estadisticas\n");
-        printf("15. Aprobar Materias\n");
-        printf("16. Exportar/Guardar Alumnos y Materias\n");
-        printf("17. Calcular promedio por legajo\n");
-        printf("18. Salir del sistema\n");
+        printf("2. Ver Datos de Estudiante Por Legajo\n");
+        printf("3. Modificar Estudiante\n");
+        printf("4. Eliminar Estudiante\n");
+        printf("5. Listar Estudiantes\n");
+        printf("6. Listar Estudiantes Filtrados por Nombre\n");
+        printf("7. Agregar Materia\n");
+        printf("8. Agregar Correlatividad\n");
+        printf("9. Ver Datos de Materia Por Código\n");
+        printf("10. Modificar Materia\n");
+        printf("11. Eliminar Materia\n");
+        printf("12. Listar Materias\n");
+        printf("13. Inscribir Estudiante en Materia\n");
+        printf("14. Buscar Estudiantes por Rango de Edad\n");
+        printf("15. Consultar de materias en curso\n");
+        printf("16. Calculo de Estadisticas\n");
+        printf("17. Aprobar Materias\n");
+        printf("18. Exportar/Guardar Alumnos y Materias\n");
+        printf("19. Calcular promedio por legajo\n");
+        printf("20. Salir del sistema\n");
         printf("Seleccione una opcion: ");
         scanf("%d", &opcion);
 
@@ -821,8 +827,13 @@ int main() {
                 printf("Estudiante agregado: \n");
                 agregar_estudiante(sistema, nombre, apellido, edad);
                 break;
-
-            case 2://MODIFICAR ESTUDIANTE
+            case 2://VER DATOS DE ESTUDIANTE
+                printf("Ingrese el legajo del estudiante: ");
+                scanf("%d", &legajo);
+                printf("El estudiante con legajo %d es: \n", legajo);
+                listar_estudiante_por_legajo(sistema->estudiantes, legajo);
+                break;
+            case 3://MODIFICAR ESTUDIANTE
                 printf("Ingrese el legajo del estudiante: ");
                 scanf("%d", &legajo);
                 printf("Ingrese el nuevo nombre: ");
@@ -833,37 +844,42 @@ int main() {
                 scanf("%d", &edad);
                 modificar_estudiante(sistema,legajo,nuevo_nombre,nuevo_apellido, edad);
                 break;
-
-            case 3://ELIMINAR ESTUDIANTE
+            case 4://ELIMINAR ESTUDIANTE
                 printf("Ingrese el legajo del estudiante a eliminar: ");
                 scanf("%d", &legajo);
                 eliminar_estudiante(sistema, legajo);
                 break;
-            case 4://LISTAR ESTUDIANTES
+            case 5://LISTAR ESTUDIANTES
                 printf("\nEstudiantes actualmente en sistema \n");
                 listar_estudiantes(sistema);
                 break;
-            case 5://LISTAR ESTUDIANTES FILTRADOS POR NOMBRE
+            case 6://LISTAR ESTUDIANTES FILTRADOS POR NOMBRE
                 printf("Ingrese el nombre a buscar: \n");
                 scanf("%s", nombre);
                 printf("Listado de alumnos por nombre:\n");
                 listar_estudiantes_filtrados_por_nombre(sistema, nombre);
-            case 6://CREAR MATERIA
+                break;
+            case 7://CREAR MATERIA
                 printf("Ingrese el nombre de la materia: ");
                 scanf("%s", nombre);
                 printf("Ingrese el cupo del curso: ");
                 scanf("%d", &cupo);
                 agregar_materia(sistema, nombre, cupo);
                 break;
-
-            case 7:// AGREGA CORRELATIVA
+            case 8:// AGREGA CORRELATIVA
                 printf("Ingrese el codigo de la materia base: \n");
                 scanf("%d", &codigo);
                 printf("Ingrese el codigo de la materia correlativa: \n");
                 scanf("%d", &codigo_correlativa);
                 agregar_materia_correlativa(sistema, codigo, codigo_correlativa);
-
-            case 8://MODIFICAR MATERIA
+                break;
+            case 9://VER DATOS DE MATERIA
+                printf("Ingrese el código de la materia: ");
+                scanf("%d", &codigo);
+                printf("La materia con código número %d es: \n", codigo);
+                listar_materias_por_codigo(sistema, codigo);
+                break;
+            case 10://MODIFICAR MATERIA
                 printf("Ingrese el código de la materia: ");
                 scanf("%d", &codigo);
                 printf("Ingrese el nuevo nombre: ");
@@ -872,29 +888,29 @@ int main() {
                 scanf("%d", &nuevo_cupo);
                 modificar_materia(sistema, codigo, nuevo_nombre, nuevo_cupo);
                 break;
-            case 9://ELIMINAR MATERIA
+            case 11://ELIMINAR MATERIA
                 printf("Ingrese el código de la materia: ");
                 scanf("%d", &codigo);
                 eliminar_materia(sistema, codigo);
                 break;
-            case 10://LISTAR MATERIAS
+            case 12://LISTAR MATERIAS
                 listar_materias(sistema);
                 break;
-            case 11://INSCRIPCION A MATERIAS
+            case 13://INSCRIPCION A MATERIAS
                 printf("Ingrese el legajo del estudiante: ");
                 scanf("%d", &legajo);
                 printf("Ingrese el código de la materia: ");
                 scanf("%d", &codigo);
                 cursar_materia(sistema, legajo, codigo);
                 break;
-            case 12://ESTUDIASTES POR RANGO DE EDAD
+            case 14://ESTUDIASTES POR RANGO DE EDAD
                 printf("Ingrese la edad minima: ");
                 scanf("%d", &edad_min);
                 printf("Ingrese la edad maxima: ");
                 scanf("%d", &edad_max);
                 buscar_estudiantes_por_rango_edad(sistema, edad_min, edad_max);
                 break;
-            case 13://MATERIAS CURSADAS POR EL ALUMNO
+            case 15://MATERIAS CURSADAS POR EL ALUMNO
                 printf("Ingrese el legajo del alumno: ");
                 scanf("%d", &legajo);
                 alumno = *estudiante_por_legajo(sistema, legajo);
@@ -902,13 +918,12 @@ int main() {
                 listar_materias_cursadas(&alumno, sistema);
                 printf(". \n");
                 break;
-
-            case 14://CALCULO ESTADISTICAS DE MATERIAS APROBADAS y CURSADAS
+            case 16://CALCULO ESTADISTICAS DE MATERIAS APROBADAS y CURSADAS
                 printf("Calculando estadisticas... \n");
                 calcular_estadisticas_materias_cursadas_actualmente(sistema);
                 calcular_estadisticas_materias_aprobadas(sistema);
                 break;
-            case 15://APROBAR MATERIA
+            case 17://APROBAR MATERIA
                 printf("Ingrese el legajo del estudiante: ");
                 scanf("%d", &legajo);
                 printf("Ingrese el codigo de la materia: ");
@@ -917,17 +932,17 @@ int main() {
                 scanf("%d", &nota);
                 aprobar_materia_cursada_estudiante(sistema,legajo,codigo,nota);
                 break;
-            case 16://EXPORTAR ALUMNOS Y MATERIAS
+            case 18://EXPORTAR ALUMNOS Y MATERIAS
                 exportar_estudiantes_a_archivo(sistema,"estudiantes.csv");
                 exportar_materias_a_archivo(sistema,"materias.csv");
-                break;  
-            case 17://CALCULAR PROMEDIO POR LEGAJO
+                break;
+            case 19://CALCULAR PROMEDIO POR LEGAJO
                 printf("Ingrese el legajo del estudiante: ");
                 scanf("%d", &legajo);
                 estudiante *estudiante_en_cuestion = estudiante_por_legajo(sistema, legajo);
                 calcular_promedio_estudiante(estudiante_en_cuestion);
-                break;       
-            case 18:
+                break;
+            case 20:
                 free(sistema);
                 printf("Saliendo...\n");
                 break;
@@ -936,7 +951,7 @@ int main() {
                 break;
         }
 
-    } while (opcion !=17);
+    } while (opcion !=20);
 
 
     return 0;
