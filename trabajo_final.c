@@ -774,6 +774,7 @@ int main() {
     free(sistema);*/
 
     //importamos los estudiantes y materias desde los archivos
+    printf("\n--- Importando alumnos y materias...\n");
     leer_estudiantes_de_archivo(sistema, "estudiantes.csv");
     leer_materias_de_archivo(sistema, "materias.csv");
     int opcion;
